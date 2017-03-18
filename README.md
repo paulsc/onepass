@@ -1,2 +1,8 @@
 # onepass
-1Password for linux with support for the new opvault database format and browser extension support. 
+1Password client for linux
+
+## why ?  
+This adds support for the new [OPVault](https://support.1password.com/opvault-design/) data format and has basic support for the 1Password browser extension. 
+
+## install
+Build the gtkmenu using `./build-gtkmenu.sh` and run using `node 1pass`
