@@ -1,0 +1,8 @@
+*.swp
+node_modules
+.secret
+build
+gtkmenu
+onepassword_data
+1Password
+docs
