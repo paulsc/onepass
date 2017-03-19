@@ -7,9 +7,10 @@ var opvault = require('./opvault');
 exports.fill = function(payload, send) {
 
     payload.fields.removeIf(field => {
-		return (field.hasOwnProperty('visible') && !field.visible)
-			|| (field.hasOwnProperty('type') && 
-				["password", "text"].indexOf(field.type) == -1);
+        var filterouttype = ["submit", "button", "checkbox"];
+        return (field.hasOwnProperty('visible') && !field.visible)
+            || (field.hasOwnProperty('type') &&
+               filterouttype.indexOf(field.type) != -1);
 	});
 
     console.log(payload);
@@ -91,19 +92,21 @@ function mapEntryToForm(entry, payload) {
 
 function findUserInputs(payload) {
 	results = [];
+    var validtags = ["user", "login", "email"];
+
 	for (var i = 0; i < payload.fields.length; i++) {
 		var field = payload.fields[i];
-
         for (key in field) {
             if (key.indexOf('label') == 0) { 
 				var value = field[key].toLowerCase();
-                if (value.indexOf('user') != -1 ||
-                    value.indexOf('login') != -1) {
-                    results.push(field.opid);
+                for (var j = 0; j < validtags.length; j++) {
+                    if (value.indexOf(validtags[j]) != -1) {
+                        results.push(field.opid);
+                        break;
+                    }
                 }
             }
         }
-
     }
 	return results;
 }
