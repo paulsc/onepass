@@ -18,7 +18,7 @@ exports.fill = function(payload, send) {
     var url = payload.url;
     winston.info("Looking up logins for url: " + url);
 
-    results = opvault.findByURL(url);
+    var results = opvault.findByURL(url);
     console.log("results: %d", results.length);
 
     if (results.length == 1) { 
@@ -66,8 +66,9 @@ function sendFillResult(result, payload, send) {
 function mapEntryToForm(entry, payload) {
     mappings = [];
 
-    if (entry.category == '001' && 
-        entry.data.hasOwnProperty('fields')) {
+    if (entry.hasOwnProperty('category') 
+        && entry.category == '001' 
+        && entry.data.hasOwnProperty('fields')) {
 
         for (var i = 0; i < entry.data.fields.length; i++) {
             field = entry.data.fields[i];
