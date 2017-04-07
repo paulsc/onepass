@@ -13,7 +13,7 @@ var m4 = null;
 exports.handleMessage = function(connection, message) {
 
     message = JSON.parse(message.utf8Data);
-    winston.info('[RECV]', message.action);
+    winston.debug('[RECV]', message.action);
 
 	if (payloadKey && message.action != "authVerify") {
 		message.payload = payloadKey.decryptPayload(message.payload);
@@ -25,12 +25,12 @@ exports.handleMessage = function(connection, message) {
             message.payload = encpayload;
         }
         connection.send(JSON.stringify(message));
-        winston.info("[SENT]", message.action); 
+        winston.debug("[SENT]", message.action); 
     }
 
     if (message.action == "hello") {
         if (SECRET) {
-            winston.info('I have secret, doing authBegin');
+            winston.debug('I have secret, doing authBegin');
             doAuthBegin();
         }
         else {
@@ -63,12 +63,11 @@ exports.handleMessage = function(connection, message) {
 
         send({ action: "welcome", 
                payload: { alg: "aead-cbchmac-256" } });
-        winston.info("Succesfully authenticated");
+        winston.info("Succesfully connected to browser extenstion.");
     }
     else if (message.action == "showPopup") {
         msg = { action: "collectDocuments", 
             payload: { context: uuidV1()}};
-        console.log(msg);
         send(msg);
     }
     else if (message.action == "collectDocumentResults") {
@@ -101,7 +100,7 @@ exports.handleMessage = function(connection, message) {
  
         outpayload = { M3: computedM3, cs: cs, method: payload.method };
 
-        winston.info("Sending computed payload: ", outpayload);
+        winston.debug("Sending computed payload: ", outpayload);
 
         send({ action: "authContinue", payload: outpayload });
 

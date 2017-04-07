@@ -171,6 +171,7 @@ exports.unlockKeychain = function() {
 
     var keys = null;
     while (!keys) {
+        winston.info("Unlocking vault...");
         var password = prompt.hide('Password: ');
         if (password == null) process.exit(0);
 

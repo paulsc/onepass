@@ -10,7 +10,6 @@ var portNumbers = [6263, 10196, 14826, 24866,
 var extId = 'chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk';
 
 exports.connect = function() {
-    winston.info('Connecting to browser...');
     portNumbers.forEach(function(port) {
         startServer(port)
     });
@@ -27,7 +26,7 @@ function startServer(port) {
 
     wsServer.on('request', function(request) {
 
-        winston.info('Connection request from origin: ' + request.origin);
+        winston.debug('Connection request from origin: ' + request.origin);
         if (request.origin != extId) {
             winston.log("not authorized, rejected.");
             request.reject();
@@ -36,7 +35,7 @@ function startServer(port) {
 
         var connection = request.accept(null, request.origin);
 
-        winston.info('Connection accepted');
+        winston.info('Connection accepted.');
 
         connection.on('message', function(message) {
             protocol.handleMessage(connection, message); 
