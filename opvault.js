@@ -169,6 +169,11 @@ function decryptMainKeys(password) {
 
 exports.unlockKeychain = function() {
 
+    var profilejs = basedir + "/profile.js";
+    if (!fs.existsSync(profilejs)) {
+        throw new Error("Vault not found at: " + basedir + " please add symbolic link here to your 1Password folder");
+    }
+
     var keys = null;
     while (!keys) {
         winston.info("Unlocking vault...");

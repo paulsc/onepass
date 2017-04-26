@@ -222,5 +222,8 @@ function saveSecret(secret) {
 }
 
 function loadSecret() {
+    if (!fs.existsSync('.secret')) {
+        return
+    }
     return fs.readFileSync('.secret', 'utf8');
 }
