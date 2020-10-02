@@ -107,7 +107,7 @@ function decryptOpdata(base64opdata, key) {
     key.copy(encryptionkey, 0, 0, 32);
     key.copy(hmackey, 0, 32, 64);
 
-    var plaintextlen = opdatabin.readUIntLE(8, 8);
+    var plaintextlen = Number(opdatabin.readBigUInt64LE(8));
 
     opdatabin.copy(aesiv, 0, 16, 32);
 
