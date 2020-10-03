@@ -4,6 +4,8 @@ var fs = require('fs');
 var winston = require('winston');
 var prompt = require('prompt-sync')();
 
+require('dotenv').config()
+
 var masterKey, overviewKey;
 //var basedir = "onepassword_data/default";
 var basedir = "1Password/1Password.opvault/default";
@@ -171,14 +173,21 @@ exports.unlockKeychain = function() {
 
     var profilejs = basedir + "/profile.js";
     if (!fs.existsSync(profilejs)) {
-        throw new Error("Vault not found at: " + basedir + " please add symbolic link here to your 1Password folder");
+        throw new Error("Vault not found at: " + basedir 
+            + " please add symbolic link here to your 1Password folder");
     }
 
     var keys = null;
     while (!keys) {
         winston.info("Unlocking vault...");
-        var password = prompt.hide('Password: ');
-        if (password == null) process.exit(0);
+
+        let password;
+        if (process.env.PASSWORD) {
+            password = process.env.PASSWORD;
+        } else {
+            password = prompt.hide('Password: ');
+            if (password == null) process.exit(0);
+        }
 
         keys = decryptMainKeys(password);
     }
@@ -197,19 +206,59 @@ exports.unlockKeychain = function() {
         var band = loadJson(fullpath);
 
         for (var uuid in band) {
-
             var enc = band[uuid].o;
             var cleartext = decryptOpdata(enc, overviewKey);
             overviewJson = cleartext.toString('utf8');
             entries.push({ 
-                    overview: JSON.parse(overviewJson),
-                    data: band[uuid],
-                    category: band[uuid].category
+                uuid: uuid,
+                overview: JSON.parse(overviewJson),
+                data: band[uuid],
+                category: band[uuid].category
             });
         } 
     }
 }
 
+// findByQuery(): search for this multi-word query
+// Query can be multiple space-separated keywords
+// Try to match every keyword independently, and the more keywords the query
+// matches, the higher ranked it will be. 
+// The results for every keyword match is added to a hashmap with a counter. 
+// If the result is matched again for another keyword, increase the counter. 
+// At the end sort the results by highest counter.
+
+exports.findByQuery = function(query, maxresults) {
+    let tokens = query.split(' ');
+    let points = {};
+    let matches = {};
+    if (!maxresults) maxresults = 3;
+
+    for (let token of tokens) {
+        let found = exports.findByKeyword(token);
+
+        for (let entry of found) {
+            if (!(entry.uuid in points)) {
+                points[entry.uuid] = 1;
+            } else {
+                points[entry.uuid] += 1;
+            }
+            matches[entry.uuid] = entry;
+        }
+    }
+
+    let results = Object.values(matches);
+    let sortFn = (a, b) => points[b.uuid] - points[a.uuid];
+    results.sort(sortFn);
+    return results.slice(0, maxresults);
+}
+
+// Returns an array of result objects:
+// { 
+//   overview: { url, URLs, title }
+//   uuid,
+//   data: { fields }
+//   }
+// }
 exports.findByKeyword = function(keyword) {
     results = [];
     keyword = keyword.toLowerCase()
@@ -234,6 +283,7 @@ exports.findByKeyword = function(keyword) {
 
             results.push({
                     overview: overview, 
+                    uuid: entries[i].uuid,
                     data: JSON.parse(cleartext),
                     category: entries[i].category
             });

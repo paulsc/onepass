@@ -25,7 +25,7 @@ function promptMode(verbose) {
     console.log("Keychain unlocked.\n");
 
     while (true) {
-        var keyword = prompt('Keyword: ');
+        var keyword = prompt('> ');
         if (keyword == "") {
             console.log("Please enter a keyword.\n")
             continue;
@@ -34,7 +34,7 @@ function promptMode(verbose) {
             process.exit(0);
         }
 
-        results = opvault.findByKeyword(keyword);
+        results = opvault.findByQuery(keyword);
 
         if (results.length == 0) {
             console.log("No entries found.\n");
@@ -61,6 +61,9 @@ function printEntry(entry, verbose) {
     var title = overview.title ? overview.title : overview.url
     console.log("  " + title); 
 
+    if (typeof(overview.url) != 'undefined') {
+        console.log("  URL host:", new URL(overview.url).host);
+    }
     //console.log("  Category: " + entry.category);
 
     if (entry.category == '003') { // Secure note
