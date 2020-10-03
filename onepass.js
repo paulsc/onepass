@@ -56,7 +56,14 @@ function promptMode(verbose) {
     opvault.unlockKeychain();
 
     console.log('\033[2J');
-    console.log("Keychain unlocked.\n");
+    console.log("Keychain unlocked, enter query below.");
+    console.log(`Screen will clear after ${CLEAR_TIMEOUT/1000}s.`);
+    console.log("");
+    console.log("<ctrl+c> Exit");
+    console.log("<ctrl+l> Load top result password into clipboard");
+    console.log("<ctrl+w> Kill last word");
+    console.log("<enter>  Clear screen");
+    console.log("");
     printPrompt();
 
     readline.emitKeypressEvents(process.stdin);
@@ -80,12 +87,16 @@ function promptMode(verbose) {
             let firstPw = findField(results[0], 'password');
             if (firstPw) {
                 clipboardy.writeSync(firstPw);
-                didClipboard = true;
+                clearResults();
+
+                process.stdout.write('\r\x1b[K');
+                printPrompt('Copied!');
+
+                setTimeout(clearPrompt, 1000);
+                return;
+            } else {
+                console.log("No password field found.")
             }
-            process.stdout.write('\r\x1b[K');
-            printPrompt('CP!');
-            setTimeout(clearPrompt, 1000);
-            return;
         }
         else if (key.name == 'backspace') {
             query = query.substr(0, query.length - 1);
