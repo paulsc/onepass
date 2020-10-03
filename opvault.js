@@ -231,7 +231,7 @@ exports.findByQuery = function(query, maxresults) {
     let tokens = query.split(' ');
     let points = {};
     let matches = {};
-    if (!maxresults) maxresults = 3;
+    if (!maxresults) maxresults = 10;
 
     for (let token of tokens) {
         let found = exports.findByKeyword(token);
@@ -262,6 +262,8 @@ exports.findByQuery = function(query, maxresults) {
 exports.findByKeyword = function(keyword) {
     results = [];
     keyword = keyword.toLowerCase()
+
+    if (keyword.length == 0) return [];
 
     for (var i = 0; i < entries.length; i++) {
         var overview = entries[i].overview;
