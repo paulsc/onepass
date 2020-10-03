@@ -33,7 +33,7 @@ function startDaemon() {
 function promptMode(verbose) {
 
     let query = '';
-    lastResultsUUID = [];
+    lastResultsUUID = undefined;
     let clearScreenTimeoutId = null;
     let clearPromptTimeoutId = null;
     let results = [];
@@ -109,12 +109,23 @@ function promptMode(verbose) {
         if (clearScreenTimeoutId) clearTimeout(clearScreenTimeoutId);
         clearScreenTimeoutId = setTimeout(clearResults, CLEAR_TIMEOUT);
 
+        // Below 3 characters results don't make sense
+        if (query.length <= 3) {
+            // console.log('\033[2J'); // Clear the screen
+            // console.log("Query too short.");
+            // console.log("");
+            process.stdout.write('\r\x1b[K');
+            printPrompt();
+            return;
+        }
+
         results = opvault.findByQuery(query, MAX_RESULTS);
 
         let previousResults = lastResultsUUID;
         lastResultsUUID = results.map(r => r.uuid);
 
-        if (JSON.stringify(previousResults) == JSON.stringify(lastResultsUUID)) {
+        if (typeof(previousResults) != undefined && 
+            JSON.stringify(previousResults) == JSON.stringify(lastResultsUUID)) {
             process.stdout.write('\r\x1b[K');
             printPrompt();
             return;
@@ -175,7 +186,7 @@ function printEntry(entry, verbose) {
         let password = findField(entry, 'password');
         if (username && password) {
             console.log("    username: " + username);
-            console.log("    password: " + password);
+            // console.log("    password: " + password);
         }
         else { // Print all fields
             for (var i = 0; i < data.fields.length; i++) {
@@ -193,7 +204,7 @@ function printEntry(entry, verbose) {
 
     if (data.hasOwnProperty('password')) {
         detailed = true;
-        console.log("    password: " + data.password);
+        // console.log("    password: " + data.password);
     }
 
     // If we couldn't find enough info to print, just dump the entry
