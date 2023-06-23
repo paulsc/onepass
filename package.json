@@ -10,7 +10,7 @@
   "author": "Paul",
   "license": "ISC",
   "dependencies": {
-    "clipboardy": "^2.3.0",
+    "clipboardy": "^3.0.0",
     "dotenv": "^8.2.0",
     "minimist": "^1.2.0",
     "prompt-sync": "^4.1.4",
